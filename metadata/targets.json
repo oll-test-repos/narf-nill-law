@@ -1,0 +1,27 @@
+{
+ "signatures": [
+  {
+   "keyid": "ba65808977548012b65ab8229f7b939e2339703cec3686ef816f2480274e7f9b",
+   "sig": "00b09f3c277fc9d2f8728bcc0fa2710712b2644fbc249998cf5eb5c171151c156b84fc63abf81930f2d261e4694fa9f2862cf5c771e1001e6dca3d70b0ec46f4d0855b7a43f1efb3efc017080ba99df96ae33aaa8e4e2bbfd5b0b50dd6d28a1d53a032719e934d5c87f39f60bc1206c5372915e3da48c680f94ca43b46985f8b35ce61c3a78ddaab1bcd1bc610b8546f9d9079e046ffa823c3bf69249d86678f49dd4dc34b06f1d500e4728a45a407587814dee7a303a866d2015b257471b2a562e163aa77ede396631aa60664021cbef26dc560813f7118c080119bfe02c69ea8aec47ac7b3b3fd24561619b0fe0f9a053a96d0ab2e82008d9eca9191dceca3"
+  }
+ ],
+ "signed": {
+  "_type": "targets",
+  "delegations": {
+   "keys": {},
+   "roles": []
+  },
+  "expires": "2024-12-17T21:24:18Z",
+  "spec_version": "1.0.0",
+  "targets": {
+   "test-auth-repo": {
+    "hashes": {
+     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    "length": 0
+   }
+  },
+  "version": 1
+ }
+}
