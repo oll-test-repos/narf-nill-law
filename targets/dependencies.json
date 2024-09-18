@@ -1,0 +1,12 @@
+{
+    "dependencies": {
+        "sanipueblo/law": {
+            "out-of-band-authentication": "bfd60386a8347c0c1ae2333e2078655791b5a3da",
+            "branch": "master"
+        },
+        "mohicanlaw/law": {
+            "out-of-band-authentication": "0194e849e4adccc188ab3df9cb7ff27e49299133",
+            "branch": "master"
+        }
+    }
+}
