@@ -1,31 +1,37 @@
-import lxml.etree as et
+import json
 from lxml import html
 from lxml.builder import E
-from os import listdir
 import os.path
 import os
 from pathlib import Path
 from copy import deepcopy
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import urlsplit
 import requests
+import sys
 
+# JURISDICTION_MAP = {
+#     partner org name: entity_id
+# }
+# TODO: to make flexibile, 
+# partner org names can be taken from dependencies.json, 
+# entity_ids from requirements.txt of the law repository
 JURISDICTION_MAP = {
     'sanipueblo': 'us/nsn/san-ildefonso/council',
     'mohicanlaw': 'us/nsn/mohican/council',
-    # 'lco-nsn': 'us/nsn/lco/council',
-    # 'tmchippewa': 'us/nsn/tmchippewa/council',
 }
 
 H_OFFSET = 2
 URL_PREFIX = '/nill/triballaw'
 #test
 LIB_ROOT_PATH = Path(__file__).parent.parent.parent.parent.parent.parent.parent.expanduser()
-
+# LIB_ROOT_PATH = Path("/home/dnikolic/narf")
 if not LIB_ROOT_PATH.exists():
     raise(Exception(f'archive at {LIB_ROOT_PATH} does not exist.'))
 
 PARTNER_PATHS = [LIB_ROOT_PATH / k for k in JURISDICTION_MAP.keys()]
+# TODO: base dir should point to law-html / triballaw
 BASE_DIR = Path(__file__).parent.parent.parent.parent.parent.parent.absolute()
+# BASE_DIR = Path("/home/dnikolic/narf/narf-nill")
 # BASE_DIR = Path("/home/dnikolic/narf/openlawlibrary/nill")
 DST_ROOT_PATH = Path(BASE_DIR / 'law-html' / 'triballaw')
 
@@ -189,6 +195,20 @@ def get_template(namespace):
     template = html.fromstring(template_text)
     return template
 
+def process_stdin():
+   return sys.stdin.read()
+
+def send_state(state):
+    # printed data will be sent from the script back to the updater
+    print(json.dumps(state))
+
+data = process_stdin()
+data = json.loads(data)
+# with open("/home/dnikolic/.RESULT/TEMPLATE.txt", "w+") as f:
+#     f.write(f"DATA {data}\n")
+state = data["state"]
+config = data["config"]
+
 for partner_path in PARTNER_PATHS:
     repos = (
         partner_path / 'law-html',
@@ -210,3 +230,5 @@ for partner_path in PARTNER_PATHS:
             content = src_path.read_bytes()
         dst_path.parent.mkdir(parents=True, exist_ok=True)
         dst_path.write_bytes(content)
+
+send_state(state)
