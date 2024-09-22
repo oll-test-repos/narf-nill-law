@@ -1,0 +1,13 @@
+{
+    "repositories": {
+        "narf-nill/law-html": {
+            "custom": {
+                "allow-unauthenticated-commits":true,
+                "type":"html",
+                "serve":"latest",
+                "location_regex":"/",
+                "routes": [".*"]
+            }
+        }
+    }
+}
