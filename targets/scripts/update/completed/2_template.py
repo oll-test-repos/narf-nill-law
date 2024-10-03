@@ -1,12 +1,12 @@
 import json
 from lxml import html
 from lxml.builder import E
+from lxml import etree
 import os.path
 import os
 from pathlib import Path
 from copy import deepcopy
 from urllib.parse import urlsplit
-import requests
 import sys
 
 # JURISDICTION_MAP = {
@@ -23,20 +23,20 @@ JURISDICTION_MAP = {
 H_OFFSET = 2
 URL_PREFIX = '/nill/triballaw'
 #test
-LIB_ROOT_PATH = Path(__file__).parent.parent.parent.parent.parent.parent.parent.expanduser()
-# LIB_ROOT_PATH = Path("/home/dnikolic/narf")
+# LIB_ROOT_PATH = Path(__file__).parent.parent.parent.parent.parent.parent.parent.expanduser()
+LIB_ROOT_PATH = Path("/home/dnikolic/narf")
 if not LIB_ROOT_PATH.exists():
     raise(Exception(f'archive at {LIB_ROOT_PATH} does not exist.'))
 
 PARTNER_PATHS = [LIB_ROOT_PATH / k for k in JURISDICTION_MAP.keys()]
 # TODO: base dir should point to law-html / triballaw
-BASE_DIR = Path(__file__).parent.parent.parent.parent.parent.parent.absolute()
-# BASE_DIR = Path("/home/dnikolic/narf/narf-nill")
+# BASE_DIR = Path(__file__).parent.parent.parent.parent.parent.parent.absolute()
+BASE_DIR = Path("/home/dnikolic/narf/narf-nill")
 # BASE_DIR = Path("/home/dnikolic/narf/openlawlibrary/nill")
 DST_ROOT_PATH = Path(BASE_DIR / 'law-html' / 'triballaw')
 
-TEMPLATE_BASE_URL = 'https://www.narf.org/nill/triballaw/templates/'
-# TEMPLATE_BASE_URL = 'http://localhost:8000/nill/triballaw/templates/'
+# TEMPLATE_BASE_URL = 'https://www.narf.org/nill/triballaw/templates/'
+TEMPLATE_BASE_DIR = DST_ROOT_PATH / 'templates'
 
 def _update_urls_in_place(src, namespace, attr):
     els = src.xpath(f'//*[@{attr}]')
@@ -49,6 +49,7 @@ def _update_urls_in_place(src, namespace, attr):
             el.set(attr, URL_PREFIX + url)
         elif url.startswith('./'):
             el.set(attr, '.' + url)
+
 def update_urls_in_place(src, namespace):
     _update_urls_in_place(src, namespace, 'href')
     _update_urls_in_place(src, namespace, 'src')
@@ -110,7 +111,48 @@ def get_footer(src):
         ])
     return footer
 
-def template(template, base_src_path, rel_src_path, namespace=None):
+def get_official_site(url):
+    official_site = [
+        E.a("website", href=url, target="_blank")
+    ]
+    return official_site
+
+def get_live_site(url):
+    live_site = [
+        E.a("law library", href=url, target="_blank")
+    ]
+    return live_site
+
+def get_tribes_nill_page(url, tribes_full_name):
+    tribes_nill_page = [
+        E.a(tribes_full_name, href=url)
+    ]
+    return tribes_nill_page
+
+def get_tribes_full_name(tribes_full_name):
+    tribes_full_name = [
+        E.span(tribes_full_name)
+    ]
+    return tribes_full_name
+
+def update_jurisdiction_text(src, el_name_attribute, new_text):
+    updates = src.xpath(f'//update[@name="{el_name_attribute}"]')
+    for el in updates:
+        el.tail = f"{new_text}" + el.tail if el.tail else f"{new_text}"
+        el.drop_tag()
+
+def update_jurisdiction_urls(src, el_name_attribute, new_url, additional_attrs=None):
+    """ Take the <update> tag and rename it to <a> tag with href pointing to new_url """
+    updates = src.xpath(f'//update[@name="{el_name_attribute}"]')
+    for el in updates:
+        el.tag = 'a'
+        el.set('href', new_url)
+        el.attrib.pop('name')
+        if additional_attrs:
+            for k, v in additional_attrs.items():
+                el.set(k, v)
+
+def template(template, base_src_path, rel_src_path, domain, namespace=None):
     """
     given a source path:
     * parse src html
@@ -130,6 +172,7 @@ def template(template, base_src_path, rel_src_path, namespace=None):
     except IndexError:
         # skip .html files that don't have a main element
         return None
+
     update_urls_in_place(src, namespace)
     update_headings_in_place(src)
 
@@ -139,22 +182,32 @@ def template(template, base_src_path, rel_src_path, namespace=None):
     auth_el.set('data-url-prefix', URL_PREFIX)
     auth_el.set('data-h-offset', str(H_OFFSET))
 
+    template_tribe_config = get_template_config(domain)
+
     replacements_by_name = {
         "head": get_head(src),
         "breadcrumbs": get_breadcrumbs(src),
         "meta": get_document_meta(src),
         "content": [src_content],
         "footer": get_footer(src),
+        "official-site": get_official_site(template_tribe_config["official-site"]),
+        "live-site": get_live_site(domain),
+        "tribes-nill-page": get_tribes_nill_page(template_tribe_config["tribes-nill-page"], template_tribe_config["tribe-full-name"]),
+        "tribe-full-name": template_tribe_config["tribe-full-name"],
+        "tribe": template_tribe_config["tribe"],
     }
 
     replace_elements = template.xpath('//replace')
     for replace_el in replace_elements:
         name = replace_el.get('name')
         replacements = replacements_by_name.get(name, [])
+        if isinstance(replacements, str):
+            replace_el.tail = replacements + replace_el.tail if replace_el.tail else replacements
+            replace_el.drop_tag()
+            continue
         for r in reversed(replacements):
             replace_el.addnext(r)
         replace_el.getparent().remove(replace_el)
-
     return template
 
 def iter_files(base_paths, skip_dotfiles=True):
@@ -183,17 +236,29 @@ def get_rel_dst_path(rel_src_path, namespace=None):
         rel_dst_path = rel_src_path.parent / new_folder / 'index.html'
     return rel_dst_path
 
-def get_template(namespace):
-    template_url = TEMPLATE_BASE_URL + namespace + '/template.html'
-    resp = requests.get(template_url)
+def get_template():
+    template_path = TEMPLATE_BASE_DIR / 'template.html'
+    # resp = requests.get(template_url)
     # requests for some reason thinks the document is encoded ISO-8859-1 (win default)
     # but it is utf-8, so must use content (bytes), not text (str)
-    template_text = resp.content
-    template_text = template_text.replace(b'="../../../../../../', b'="/nill/')
-    template_text = template_text.replace(b'="../../../../../', b'="/nill/triballaw/')
-
+    # template_text = resp.content
+    # template_text = template_text.replace(b'="../../../../../../', b'="/nill/')
+    # template_text = template_text.replace(b'="../../../../../', b'="/nill/triballaw/')
+    template_text = template_path.read_text()
     template = html.fromstring(template_text)
     return template
+
+def get_domain(jurisdiction):
+    """Parse the law-html repository looking for the 'html' tag from metadata.json 'canonical_url'"""
+    breakpoint()
+    metadata_path = BASE_DIR / ".." / jurisdiction / "law-html" / 'metadata.json'
+    return JURISDICTION_MAP.get(jurisdiction)
+
+def get_template_config():
+    return json.loads((TEMPLATE_BASE_DIR / 'template_config.json').read_text())
+
+def get_template_config(domain):
+    return json.loads((TEMPLATE_BASE_DIR / f'template_config.json').read_text()).get(domain, None)
 
 def process_stdin():
    return sys.stdin.read()
@@ -202,12 +267,12 @@ def send_state(state):
     # printed data will be sent from the script back to the updater
     print(json.dumps(state))
 
-data = process_stdin()
-data = json.loads(data)
+# data = process_stdin()
+# data = json.loads(data)
 # with open("/home/dnikolic/.RESULT/TEMPLATE.txt", "w+") as f:
 #     f.write(f"DATA {data}\n")
-state = data["state"]
-config = data["config"]
+# state = data["state"]
+# config = data["config"]
 
 for partner_path in PARTNER_PATHS:
     repos = (
@@ -218,11 +283,13 @@ for partner_path in PARTNER_PATHS:
     )
     jurisdiction = partner_path.stem
     namespace = JURISDICTION_MAP.get(jurisdiction)
-    _template = get_template(namespace)
+    _template = get_template()
 
     for base_src_path, rel_src_path in iter_files(repos):
         dst_path = DST_ROOT_PATH / get_rel_dst_path(rel_src_path, namespace)
-        dom = template(_template, base_src_path, rel_src_path, namespace)
+        domain = get_domain(jurisdiction)
+        dom = template(_template, base_src_path, rel_src_path, jurisdiction, namespace)
+
         if dom is not None:
             content = html.tostring(dom, encoding="utf-8")
         else:
@@ -231,4 +298,4 @@ for partner_path in PARTNER_PATHS:
         dst_path.parent.mkdir(parents=True, exist_ok=True)
         dst_path.write_bytes(content)
 
-send_state(state)
+# send_state(state)
