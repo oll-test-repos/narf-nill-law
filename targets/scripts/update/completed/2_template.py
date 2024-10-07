@@ -7,7 +7,9 @@ import os
 from pathlib import Path
 from copy import deepcopy
 from urllib.parse import urlsplit
+from taf.git import GitRepository
 import sys
+
 
 # JURISDICTION_MAP = {
 #     partner org name: entity_id
@@ -129,30 +131,7 @@ def get_tribes_nill_page(url, tribes_full_name):
     ]
     return tribes_nill_page
 
-def get_tribes_full_name(tribes_full_name):
-    tribes_full_name = [
-        E.span(tribes_full_name)
-    ]
-    return tribes_full_name
-
-def update_jurisdiction_text(src, el_name_attribute, new_text):
-    updates = src.xpath(f'//update[@name="{el_name_attribute}"]')
-    for el in updates:
-        el.tail = f"{new_text}" + el.tail if el.tail else f"{new_text}"
-        el.drop_tag()
-
-def update_jurisdiction_urls(src, el_name_attribute, new_url, additional_attrs=None):
-    """ Take the <update> tag and rename it to <a> tag with href pointing to new_url """
-    updates = src.xpath(f'//update[@name="{el_name_attribute}"]')
-    for el in updates:
-        el.tag = 'a'
-        el.set('href', new_url)
-        el.attrib.pop('name')
-        if additional_attrs:
-            for k, v in additional_attrs.items():
-                el.set(k, v)
-
-def template(template, base_src_path, rel_src_path, domain, namespace=None):
+def template(template, base_src_path, rel_src_path, tribe_config, namespace=None):
     """
     given a source path:
     * parse src html
@@ -182,19 +161,17 @@ def template(template, base_src_path, rel_src_path, domain, namespace=None):
     auth_el.set('data-url-prefix', URL_PREFIX)
     auth_el.set('data-h-offset', str(H_OFFSET))
 
-    template_tribe_config = get_template_config(domain)
-
     replacements_by_name = {
         "head": get_head(src),
         "breadcrumbs": get_breadcrumbs(src),
         "meta": get_document_meta(src),
         "content": [src_content],
         "footer": get_footer(src),
-        "official-site": get_official_site(template_tribe_config["official-site"]),
+        "official-site": get_official_site(tribe_config["official-site"]),
         "live-site": get_live_site(domain),
-        "tribes-nill-page": get_tribes_nill_page(template_tribe_config["tribes-nill-page"], template_tribe_config["tribe-full-name"]),
-        "tribe-full-name": template_tribe_config["tribe-full-name"],
-        "tribe": template_tribe_config["tribe"],
+        "tribes-nill-page": get_tribes_nill_page(tribe_config["tribes-nill-page"], tribe_config["tribe-full-name"]),
+        "tribe-full-name": tribe_config["tribe-full-name"],
+        "tribe": tribe_config["tribe"],
     }
 
     replace_elements = template.xpath('//replace')
@@ -249,10 +226,17 @@ def get_template():
     return template
 
 def get_domain(jurisdiction):
-    """Parse the law-html repository looking for the 'html' tag from metadata.json 'canonical_url'"""
-    breakpoint()
-    metadata_path = BASE_DIR / ".." / jurisdiction / "law-html" / 'metadata.json'
-    return JURISDICTION_MAP.get(jurisdiction)
+    """Parse the law-html repository and look for the 'html' tag from metadata.json 'canonical_url'"""
+    html_repo_path = (BASE_DIR / ".." / jurisdiction / "law-html").resolve()
+    html_repo = GitRepository(path=html_repo_path)
+    metadata = html_repo.safely_get_json("HEAD", "metadata.json")
+    if metadata is None:
+        return None
+    try:
+        html_tag = metadata["meta"]["canonical-urls"]["html"]
+        return html_tag.get("current") if isinstance(html_tag, dict) else html_tag
+    except (TypeError, KeyError, AttributeError):
+        return None
 
 def get_template_config():
     return json.loads((TEMPLATE_BASE_DIR / 'template_config.json').read_text())
@@ -284,12 +268,12 @@ for partner_path in PARTNER_PATHS:
     jurisdiction = partner_path.stem
     namespace = JURISDICTION_MAP.get(jurisdiction)
     _template = get_template()
+    domain = get_domain(jurisdiction)
+    template_tribe_config = get_template_config(domain)
 
     for base_src_path, rel_src_path in iter_files(repos):
         dst_path = DST_ROOT_PATH / get_rel_dst_path(rel_src_path, namespace)
-        domain = get_domain(jurisdiction)
-        dom = template(_template, base_src_path, rel_src_path, jurisdiction, namespace)
-
+        dom = template(_template, base_src_path, rel_src_path, template_tribe_config, namespace)
         if dom is not None:
             content = html.tostring(dom, encoding="utf-8")
         else:
