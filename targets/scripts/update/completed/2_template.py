@@ -1,43 +1,30 @@
+import sys
 import json
 from lxml import html
 from lxml.builder import E
-from lxml import etree
 import os.path
 import os
 from pathlib import Path
 from copy import deepcopy
 from urllib.parse import urlsplit
+from taf.auth_repo import AuthenticationRepository
 from taf.git import GitRepository
-import sys
+from taf.log import taf_logger
 
-
-# JURISDICTION_MAP = {
-#     partner org name: entity_id
-# }
-# TODO: to make flexibile, 
-# partner org names can be taken from dependencies.json, 
-# entity_ids from requirements.txt of the law repository
-JURISDICTION_MAP = {
-    'sanipueblo': 'us/nsn/san-ildefonso/council',
-    'mohicanlaw': 'us/nsn/mohican/council',
-}
 
 H_OFFSET = 2
 URL_PREFIX = '/nill/triballaw'
-#test
-# LIB_ROOT_PATH = Path(__file__).parent.parent.parent.parent.parent.parent.parent.expanduser()
-LIB_ROOT_PATH = Path("/home/dnikolic/narf")
+LIB_ROOT_PATH = Path(__file__).parent.parent.parent.parent.parent.parent.parent.expanduser()
+# LIB_ROOT_PATH = Path("/home/dnikolic/narf")
 if not LIB_ROOT_PATH.exists():
     raise(Exception(f'archive at {LIB_ROOT_PATH} does not exist.'))
 
-PARTNER_PATHS = [LIB_ROOT_PATH / k for k in JURISDICTION_MAP.keys()]
-# TODO: base dir should point to law-html / triballaw
-# BASE_DIR = Path(__file__).parent.parent.parent.parent.parent.parent.absolute()
-BASE_DIR = Path("/home/dnikolic/narf/narf-nill")
+BASE_DIR = Path(__file__).parent.parent.parent.parent.parent.parent.absolute()
+# BASE_DIR = Path("/home/dnikolic/narf/narf-nill")
+NILL_LAW_DIR = Path(BASE_DIR / 'law')
 # BASE_DIR = Path("/home/dnikolic/narf/openlawlibrary/nill")
 DST_ROOT_PATH = Path(BASE_DIR / 'law-html' / 'triballaw')
 
-# TEMPLATE_BASE_URL = 'https://www.narf.org/nill/triballaw/templates/'
 TEMPLATE_BASE_DIR = DST_ROOT_PATH / 'templates'
 
 def _update_urls_in_place(src, namespace, attr):
@@ -203,6 +190,28 @@ def iter_files(base_paths, skip_dotfiles=True):
                     continue
                 yield base_path, rel_root_path / f
 
+def is_jurisdiction_already_templated(jurisdiction):
+    """
+    Read .metadata.json file and check if the last validated commit is the same as the current commit in the authentication repository.
+    """
+    try:
+        current_commit = get_current_targets_commit(jurisdiction, targets_type="law-html")
+    except (TypeError, KeyError):
+        # no target file for this jurisdiction
+        # no need to template anything, since jursdiction has no html.
+        return True
+    except Exception as e:
+        taf_logger.error(f"Could not get current commit for {jurisdiction}: {e}")
+        raise e
+    metadata_path = BASE_DIR / "law-html" / ".metadata.json"
+    if not metadata_path.exists():
+        return False
+    metadata = json.loads(metadata_path.read_text())
+    last_validated_commit = metadata.get(f"{jurisdiction}/law-html", {}).get("last_validated_commit")
+    if last_validated_commit is None:
+        return False
+    return last_validated_commit == current_commit
+
 def get_rel_dst_path(rel_src_path, namespace=None):
     if str(rel_src_path.parent) == '.' and namespace:
         rel_src_path = Path(namespace) / rel_src_path
@@ -238,6 +247,55 @@ def get_domain(jurisdiction):
     except (TypeError, KeyError, AttributeError):
         return None
 
+def get_current_targets_commit(jurisdiction, targets_type="law-html"):
+    """
+    Get the current signed commit for the law-html repository.
+    """
+    law_repo_path = (BASE_DIR / ".." / jurisdiction / "law").resolve()
+    law_repo = AuthenticationRepository(path=law_repo_path)
+    targets = law_repo.get_target(f"{jurisdiction}/{targets_type}")
+    return targets["commit"]
+
+def get_jurisdiction_map():
+    """
+    Return a mapping of jurisdiction to entity_id in the form of:
+    jurisdiction_map = {
+        jurisdiction_org: entity_id
+    }
+    e.g.
+    jurisdiction_map = {
+        'sanipueblo': 'us/nsn/san-ildefonso/council',
+        'mohicanlaw': 'us/nsn/mohican/council',
+    }
+    """
+    nill_law_repo = AuthenticationRepository(path=NILL_LAW_DIR)
+    dependencies = nill_law_repo.safely_get_json("HEAD", "targets/dependencies.json")
+    if dependencies is None:
+        return None
+    jurisdiction_map = {}
+    jurisdiction_orgs = dependencies.get("dependencies", {}).keys()
+    for jurisdiction in jurisdiction_orgs:
+        jurisdiction = jurisdiction.split("/")[0]
+        law_repo_path = (BASE_DIR / ".." / jurisdiction / "law").resolve()
+        law_repo = GitRepository(path=law_repo_path)
+        requirements_txt = law_repo.get_file("HEAD", "requirements.txt")
+        entity_id = get_entity_id_from_requirements(requirements_txt)
+        jurisdiction_map[jurisdiction] = entity_id
+    return jurisdiction_map
+
+def get_jurisdiction_paths():
+    return [LIB_ROOT_PATH / k for k in get_jurisdiction_map().keys()]
+
+def get_entity_id_from_requirements(requirements_txt):
+    entity_id = None
+    for line in requirements_txt.split("\n"):
+        if "#" in line:
+            entity_id = line.split("#")[-1].strip()
+            break
+    # omit oll.partners part and replace . with / and _ with -
+    entity_id = entity_id.replace("oll.partners.", "").replace(".", "/").replace("_", "-")
+    return entity_id
+
 def get_template_config():
     return json.loads((TEMPLATE_BASE_DIR / 'template_config.json').read_text())
 
@@ -251,6 +309,14 @@ def send_state(state):
     # printed data will be sent from the script back to the updater
     print(json.dumps(state))
 
+def set_metadata_json(new_metadata):
+    metadata_path = BASE_DIR / "law-html" / ".metadata.json"
+    if not metadata_path.exists():
+        metadata = {}
+    else:
+        metadata = json.loads(metadata_path.read_text())
+    metadata.update(new_metadata)
+    metadata_path.write_text(json.dumps(metadata, indent=2))
 # data = process_stdin()
 # data = json.loads(data)
 # with open("/home/dnikolic/.RESULT/TEMPLATE.txt", "w+") as f:
@@ -258,15 +324,23 @@ def send_state(state):
 # state = data["state"]
 # config = data["config"]
 
-for partner_path in PARTNER_PATHS:
+jurisdiction_map = get_jurisdiction_map()
+
+if jurisdiction_map is None:
+    raise Exception("Could not get jurisdiction map")
+
+for jurisdiction_path in get_jurisdiction_paths():
     repos = (
-        partner_path / 'law-html',
-        partner_path / 'law-docs',
-        partner_path / 'law-static-assets',
-        partner_path / '..' / 'openlawlibrary' / 'law-static-assets',
+        jurisdiction_path / 'law-html',
+        jurisdiction_path / 'law-docs',
+        jurisdiction_path / 'law-static-assets',
+        jurisdiction_path / '..' / 'openlawlibrary' / 'law-static-assets',
     )
-    jurisdiction = partner_path.stem
-    namespace = JURISDICTION_MAP.get(jurisdiction)
+    jurisdiction = jurisdiction_path.stem
+    if is_jurisdiction_already_templated(jurisdiction):
+        taf_logger.info(f"Jurisdiction {jurisdiction} is already templated.")
+        continue
+    namespace = jurisdiction_map.get(jurisdiction)
     _template = get_template()
     domain = get_domain(jurisdiction)
     template_tribe_config = get_template_config(domain)
@@ -281,5 +355,11 @@ for partner_path in PARTNER_PATHS:
             content = src_path.read_bytes()
         dst_path.parent.mkdir(parents=True, exist_ok=True)
         dst_path.write_bytes(content)
+    new_metadata = {
+        f"{jurisdiction}/law-html": {
+            "last_validated_commit": get_current_targets_commit(jurisdiction, targets_type="law-html")
+        }
+    }
+    set_metadata_json(new_metadata)
 
 # send_state(state)
