@@ -19,8 +19,6 @@ def send_state(state):
 data = process_stdin()
 data = json.loads(data)
 
-raise Exception("Test failure")
-
 for repo in target_repos_with_unauthenticated_commits:
     html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name=repo)
     error = None
