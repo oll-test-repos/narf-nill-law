@@ -20,7 +20,7 @@ jobs:
 
       - name: Set up Git credentials
         run: |
-          git config --global user.name "n-dusan"
+          git config --global user.name "oll-bot"
           git config --global user.email "developers@openlawlib.org"
 
       - name: Set up archive directory and taf executable
