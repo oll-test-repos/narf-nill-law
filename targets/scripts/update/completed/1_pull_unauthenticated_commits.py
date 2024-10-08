@@ -8,8 +8,7 @@ from taf.log import taf_logger
 LIB_ROOT_PATH = Path(__file__).parent.parent.parent.parent.parent.parent.parent.expanduser()
 # LIB_ROOT_PATH = Path("/home/dnikolic/narf")
 
-# TODO: make more flexible
-repos_with_unauthenticated_commits = ("law-html",)
+target_repos_with_unauthenticated_commits = ("narf-nill/law-html",)
 
 def process_stdin():
    return sys.stdin.read()
@@ -20,8 +19,10 @@ def send_state(state):
 data = process_stdin()
 data = json.loads(data)
 
-for repo in repos_with_unauthenticated_commits:
-    html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name=f"narf-nill/{repo}")
+raise NotImplementedError("Test failure")
+
+for repo in target_repos_with_unauthenticated_commits:
+    html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name=repo)
     error = None
     try:
         html_repo.pull()

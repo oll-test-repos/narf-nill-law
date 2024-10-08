@@ -21,7 +21,7 @@ def send_state(state):
 
 data = process_stdin()
 data = json.loads(data)
-# TODO: make html repo initialization more flexible
+
 html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name="narf-nill/law-html")
 error = None
 
