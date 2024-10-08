@@ -2,7 +2,7 @@
  "signatures": [
   {
    "keyid": "ba65808977548012b65ab8229f7b939e2339703cec3686ef816f2480274e7f9b",
-   "sig": "9f2f24b418ee5f084fa84d65e27f4efa1e2b9f2852f081622300863d66da7cf83c375c6cec32a899fed18b7e2a67b3036f671d12431737814371464d380fd846285aff3bceca10679c27c9fa798a7685bbcac3c634124f3d7d5e3ec424a20d62ecebaaee0afb1294527e1a8a8205c993ded93a9a7696b1ee45d0f69271281eaf03a7ca97b2179baaaf6b64b929f0c890c30a49ef3585f7a8b410bc061fbeeac473e0df8bef1b63b1beae2e26e1f411537a9caf11e4574912da8033d15004fb355fff2a5f32ee8aae6adec22d0e33e06a0177c9a5d61cd42dbfd53effdfb193543803c216356fb009c47632c72664236a1bcbe2111ba6760e16380e046f9faff2"
+   "sig": "31718ef0586a9e048d35df6d2e8cac8f12283279273ba34dd6e2ee7e6c2e8a7d8dbf85ac32ce59ec9d3081bf2854fb8a49781e001b35135fca804fc17869e38ca51bbf229f445f8b8d53fcb0b2082d24c39471e0444ee219743c8e961cf387847022b7db7551bed9d3e998fe0fe59ef39ea6e719d33a87c8c6d0377ab6592ad8e6f99b727bf92b3e70c79034dd1c973a593eb90a22d9251694b4cbb29760af9ab6b8a7aba8b99dd29d583a363aa4ebe1434daafbda3e2185b7bed00affcd6e3600d0caa2f3a4a01dabc279fb2f576c94d9fef69cb1ce2d9c8080f0343e2f66724e417dda81d934a6c49a41b3bf5c5331cf7c7e74fa4ded0bd545df1677a75f76"
   }
  ],
  "signed": {
@@ -11,7 +11,7 @@
    "keys": {},
    "roles": []
   },
-  "expires": "2025-01-06T23:46:48Z",
+  "expires": "2025-01-06T23:53:49Z",
   "spec_version": "1.0.0",
   "targets": {
    "dependencies.json": {
@@ -49,27 +49,6 @@
     },
     "length": 301
    },
-   "scripts/update/completed/1_pull_unauthenticated_commits.py": {
-    "hashes": {
-     "sha256": "505669dc0dc3be24a4abc1b7281c59dffdb0fdefb080fd553556d120c0513165",
-     "sha512": "49ddca6d8a9d231b903bd208ac4cd2e8926bf95b0863b32d68d5917b5cb54055cd600c26e8749b3b65be2cc2e45a383a371cd30d4cc6353f03b3f1cbe182ce27"
-    },
-    "length": 812
-   },
-   "scripts/update/completed/2_template.py": {
-    "hashes": {
-     "sha256": "a3155eb1cb873c727809bc6a01902da86731ed06084c574d35c755a1a7f60c3d",
-     "sha512": "6ba992d1f0230fab3b6c8ec89b6c351fb80eb356b20ee182337621f4a98629d6ecf5ae7c69c775996f94ee4bb93b654f962b531f8cc83e8ce730c3ccab712f58"
-    },
-    "length": 14007
-   },
-   "scripts/update/completed/3_deploy.py": {
-    "hashes": {
-     "sha256": "99c422439e0fa2c77a852f9bc92f49db437519f7b7f1b27e0068f9559cdd07d3",
-     "sha512": "549c1db5e295b5820f94a66f48af92a4e6dc2dc973084b95439da91924acb26457615ba8e45222b784c99246e274b8889f7d3c04358cc7e6cef473e4f81474d7"
-    },
-    "length": 1188
-   },
    "test-auth-repo": {
     "hashes": {
      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -78,6 +57,6 @@
     "length": 0
    }
   },
-  "version": 21
+  "version": 22
  }
 }
