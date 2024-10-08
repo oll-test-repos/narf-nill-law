@@ -21,10 +21,10 @@ jobs:
       - name: Set up archive directory and taf executable
         run: |
           mkdir -p archive
-          wget https://github.com/n-dusan/taf/releases/latest/download/taf-linux -O archive/taf
+          wget -q https://github.com/n-dusan/taf/releases/latest/download/taf-linux -O archive/taf
           chmod +x archive/taf
           cd archive
-          ./taf --version
+          ./taf --help | grep "TAF Command Line Interface" || { echo "Error: Expected text not found in the executable output"; exit 1; }
 
       - name: Clone all tribes and update templates
         run: ./taf repo clone git@github.com:${{ github.repository }}.git
