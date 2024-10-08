@@ -150,7 +150,6 @@ def template(template, base_src_path, rel_src_path, domain, tribe_config, namesp
 
     replacements_by_name = {
         "head": get_head(src),
-        "breadcrumbs": get_breadcrumbs(src),
         "meta": get_document_meta(src),
         "content": [src_content],
         "footer": get_footer(src),
@@ -159,6 +158,7 @@ def template(template, base_src_path, rel_src_path, domain, tribe_config, namesp
         "tribes-nill-page": get_tribes_nill_page(tribe_config["tribes-nill-page"], tribe_config["tribe-full-name"]),
         "tribe-full-name": tribe_config["tribe-full-name"],
         "tribe": tribe_config["tribe"],
+        "breadcrumbs": get_breadcrumbs(src),
     }
 
     replace_elements = template.xpath('//replace')
@@ -171,8 +171,10 @@ def template(template, base_src_path, rel_src_path, domain, tribe_config, namesp
             continue
         for r in reversed(replacements):
             replace_el.addnext(r)
-            r.tail = replace_el.tail
-            replace_el.tail = None
+            if replace_el.tail:
+                if not replace_el.tail.isspace():
+                    r.tail = replace_el.tail
+                    replace_el.tail = None
         replace_el.getparent().remove(replace_el)
     return template
 
