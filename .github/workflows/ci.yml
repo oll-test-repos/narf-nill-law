@@ -1,0 +1,28 @@
+name: Update triballaw templates every 24 hrs
+on:
+  schedule:
+    - cron: "0 */24 * * *"
+
+jobs:
+  update-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.NILL_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Set up archive directory and taf executable
+        run: |
+          mkdir -p archive
+          wget https://github.com/n-dusan/taf/releases/latest/download/taf-linux -O archive/taf
+          chmod +x archive/taf
+          cd archive
+          ./taf --version
+
+      - name: Clone all tribes and update templates
+        run: ./taf repo clone git@github.com:${{ github.repository }}.git
+        working-directory: ./archive
