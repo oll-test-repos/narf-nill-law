@@ -7,7 +7,7 @@ on:
     - cron: "0 */24 * * *"
 
 jobs:
-  update-and-test:
+  run-templates:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,6 +17,11 @@ jobs:
           echo "${{ secrets.NILL_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Set up Git credentials
+        run: |
+          git config --global user.name "n-dusan"
+          git config --global user.email "developers@openlawlib.org"
 
       - name: Set up archive directory and taf executable
         run: |
