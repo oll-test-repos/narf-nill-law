@@ -33,7 +33,7 @@ except NothingToCommitError as e:
     sys.exit(0)
 except Exception as e:
     # commit failed, clean and reset to head
-    error = e.stdout or str(e)
+    error = e.message or str(e)
     html_repo.clean_and_reset()
     send_state({"error": error})
     sys.exit(1)
@@ -41,7 +41,7 @@ except Exception as e:
 try:
     html_repo.push()
 except Exception as e:
-    error = e.stdout or str(e)
+    error = e.message or str(e)
     send_state({"error": str(error)})
     html_repo.reset_num_of_commits(1)
     sys.exit(1)
