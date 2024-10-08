@@ -118,7 +118,7 @@ def get_tribes_nill_page(url, tribes_full_name):
     ]
     return tribes_nill_page
 
-def template(template, base_src_path, rel_src_path, tribe_config, namespace=None):
+def template(template, base_src_path, rel_src_path, domain, tribe_config, namespace=None):
     """
     given a source path:
     * parse src html
@@ -347,7 +347,7 @@ for jurisdiction_path in get_jurisdiction_paths():
 
     for base_src_path, rel_src_path in iter_files(repos):
         dst_path = DST_ROOT_PATH / get_rel_dst_path(rel_src_path, namespace)
-        dom = template(_template, base_src_path, rel_src_path, template_tribe_config, namespace)
+        dom = template(_template, base_src_path, rel_src_path, domain, template_tribe_config, namespace)
         if dom is not None:
             content = html.tostring(dom, encoding="utf-8")
         else:
