@@ -171,6 +171,8 @@ def template(template, base_src_path, rel_src_path, domain, tribe_config, namesp
             continue
         for r in reversed(replacements):
             replace_el.addnext(r)
+            r.tail = replace_el.tail
+            replace_el.tail = None
         replace_el.getparent().remove(replace_el)
     return template
 
