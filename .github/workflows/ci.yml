@@ -14,8 +14,9 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.NILL_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
+          echo "${{ secrets.NILL_SSH_KEY_LAW }}" > ~/.ssh/id_ed25519_law
+          echo "${{ secrets.NILL_SSH_KEY_HTML }}" > ~/.ssh/id_ed25519_html
+          chmod 600 ~/.ssh/id_ed25519_law ~/.ssh/id_ed25519_html
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Set up Git credentials
@@ -31,7 +32,7 @@ jobs:
 
       - name: Install taf and lxml
         run: |
-          python -m pip install --upgrade taf lxml
+          python -m pip install --upgrade taf lxml==5.3.*
 
       - name: Set up archive directory
         run: |
