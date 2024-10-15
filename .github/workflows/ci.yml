@@ -23,14 +23,14 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_ed25519_html
 
-      # - name: Set up SSH config and git credentials
-      #   run: |
-      #     echo "Host *" > ~/.ssh/config
-      #     echo "  IdentityFile ~/.ssh/id_ed25519_html" >> ~/.ssh/config
-      #     echo "  StrictHostKeyChecking accept-new" >> ~/.ssh/config
-      #     chmod 600 ~/.ssh/config
-      #     git config --global user.name "n-dusan"
-      #     git config --global user.email "nikolic.dusan.dey@gmail.com"
+      - name: Set up SSH config and git credentials
+        run: |
+          echo "Host *" > ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/id_ed25519_html" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking accept-new" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
+          git config --global user.name "n-dusan"
+          git config --global user.email "nikolic.dusan.dey@gmail.com"
 
       - name: test clone with deploy key
         run: |
