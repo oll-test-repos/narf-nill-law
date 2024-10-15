@@ -20,9 +20,7 @@ jobs:
 
       - name: Set up SSH config and git credentials
         run: |
-          echo "Host github.com" > ~/.ssh/config
-          echo "  Hostname github.com" >> ~/.ssh/config
-          echo "  User git" >> ~/.ssh/config
+          echo "Host *" > ~/.ssh/config
           echo "  IdentityFile ~/.ssh/id_ed25519_html" >> ~/.ssh/config
           echo "  StrictHostKeyChecking accept-new" >> ~/.ssh/config
           chmod 600 ~/.ssh/config
