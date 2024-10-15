@@ -19,8 +19,14 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519_law ~/.ssh/id_ed25519_html
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      - name: Set up Git credentials
+      - name: Set up SSH config and git credentials
         run: |
+          echo "Host github.com" > ~/.ssh/config
+          echo "  Hostname github.com" >> ~/.ssh/config
+          echo "  User git" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/id_ed25519_law" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking accept-new" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
           git config --global user.name "oll-bot"
           git config --global user.email "developers@openlawlib.org"
 
