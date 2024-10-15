@@ -18,6 +18,10 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519_html
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
+      - name: test clone with deploy key
+        run: |
+          git clone git@github.com:oll-test-repos/narf-nill-law-html.git
+
       - name: Set up SSH config and git credentials
         run: |
           echo "Host github.com" > ~/.ssh/config
