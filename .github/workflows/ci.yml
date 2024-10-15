@@ -27,8 +27,8 @@ jobs:
           echo "  IdentityFile ~/.ssh/id_ed25519_law" >> ~/.ssh/config
           echo "  StrictHostKeyChecking accept-new" >> ~/.ssh/config
           chmod 600 ~/.ssh/config
-          git config --global user.name "oll-bot"
-          git config --global user.email "developers@openlawlib.org"
+          git config --global user.name "n-dusan"
+          git config --global user.email "nikolic.dusan.dey@gmail.com"
 
       - name: Set up Python
         uses: actions/setup-python@v5
