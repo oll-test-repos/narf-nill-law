@@ -16,7 +16,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.NILL_SSH_KEY_LAW }}" > ~/.ssh/id_ed25519_law
           echo "${{ secrets.NILL_SSH_KEY_HTML }}" > ~/.ssh/id_ed25519_html
-          chmod 600 ~/.ssh/id_ed25519_law ~/.ssh/id_ed25519_html
+          chmod 600 ~/.ssh/id_ed25519_law 
+          chmod 600 ~/.ssh/id_ed25519_html
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Set up SSH config and git credentials
