@@ -38,5 +38,5 @@ jobs:
           mkdir -p archive
 
       - name: Clone all tribes and update templates
-        run: taf repo clone git@github.com:${{ github.repository }}.git
+        run: taf repo clone https://github.com/${{ github.repository }}.git
         working-directory: ./archive
