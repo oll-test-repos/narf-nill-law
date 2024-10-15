@@ -49,6 +49,7 @@ jobs:
           git switch ndusan/make-urls-flexible
           python -m pip install -e .
           python -m pip install lxml==5.3.*
+          python -m pip list
 
       # - name: Install taf and lxml
       #   run: |
