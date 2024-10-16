@@ -11,11 +11,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # - name: Set up SSH key
+      #   run: |
+      #     mkdir -p ~/.ssh
+      #     echo "${{ secrets.NILL_SSH_KEY_HTML }}" > ~/.ssh/id_ed25519_html
+      #     chmod 600 ~/.ssh/id_ed25519_html
+      #     ssh-keyscan github.com >> ~/.ssh/known_hosts
+
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.NILL_SSH_KEY_HTML }}" > ~/.ssh/id_ed25519_html
-          chmod 600 ~/.ssh/id_ed25519_html
+          echo "${{ secrets.NILL_SSH_KEY_HTML }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       # - name: Set up SSH config and git credentials
@@ -26,7 +33,7 @@ jobs:
       #     chmod 600 ~/.ssh/config
       #     git config --global user.name "n-dusan"
       #     git config --global user.email "nikolic.dusan.dey@gmail.com"
-
+      
       - name: Set up SSH config and git credentials
         run: |
           git config --global user.name "n-dusan"
