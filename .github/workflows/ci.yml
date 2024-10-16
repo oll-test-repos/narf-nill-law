@@ -18,15 +18,11 @@ jobs:
           echo "${{ secrets.NILL_SSH_KEY_HTML }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-      
+
       - name: Set up SSH config and git credentials
         run: |
           git config --global user.name "oll-bot"
           git config --global user.email "developers@openlawlib.org"
-
-      # - name: test clone with deploy key
-      #   run: |
-      #     git clone git@github.com:oll-test-repos/narf-nill-law-html.git
 
       - name: Set up Python
         uses: actions/setup-python@v5
