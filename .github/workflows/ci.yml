@@ -34,10 +34,10 @@ jobs:
       #     git config --global user.name "n-dusan"
       #     git config --global user.email "nikolic.dusan.dey@gmail.com"
       
-      - name: Set up SSH config and git credentials
-        run: |
-          git config --global user.name "n-dusan"
-          git config --global user.email "nikolic.dusan.dey@gmail.com"
+      # - name: Set up SSH config and git credentials
+      #   run: |
+      #     git config --global user.name "oll-bot"
+      #     git config --global user.email "developers@openlawlib.org"
 
       - name: test clone with deploy key
         run: |
