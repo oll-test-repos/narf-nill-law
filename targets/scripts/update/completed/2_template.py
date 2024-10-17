@@ -1,4 +1,5 @@
 import sys
+import configparser
 import json
 from lxml import html
 from lxml.builder import E
@@ -291,11 +292,15 @@ def get_entity_id_from_requirements(requirements_txt):
     entity_id = entity_id.replace("oll.partners.", "").replace(".", "/").replace("_", "-")
     return entity_id
 
-def get_template_config():
-    return json.loads((TEMPLATE_BASE_DIR / 'template_config.json').read_text())
 
 def get_template_config(domain):
-    return json.loads((TEMPLATE_BASE_DIR / f'template_config.json').read_text()).get(domain, None)
+    config = configparser.ConfigParser()
+    config.read(TEMPLATE_BASE_DIR / 'template_config.conf')
+    try:
+        return dict(config[domain])
+    except Exception as e:
+        taf_logger.error(f"Could not get template config for {domain}: {e}")
+        return None
 
 def process_stdin():
    return sys.stdin.read()
@@ -313,6 +318,8 @@ def set_metadata_json(new_metadata):
     metadata_path.write_text(json.dumps(metadata, indent=2))
 
 jurisdiction_map = get_jurisdiction_map()
+
+missing_jurisdictions = []
 
 if jurisdiction_map is None:
     raise Exception("Could not get jurisdiction map")
@@ -332,7 +339,10 @@ for jurisdiction_path in get_jurisdiction_paths():
     _template = get_template()
     domain = get_domain(jurisdiction)
     template_tribe_config = get_template_config(domain)
-
+    if template_tribe_config is None:
+        taf_logger.error(f"Could not get template config for {domain}. Skipping jurisdiction {jurisdiction}.")
+        missing_jurisdictions.append(jurisdiction)
+        continue
     for base_src_path, rel_src_path in iter_files(repos):
         dst_path = DST_ROOT_PATH / get_rel_dst_path(rel_src_path, namespace)
         dom = template(_template, base_src_path, rel_src_path, domain, template_tribe_config, namespace)
@@ -349,3 +359,7 @@ for jurisdiction_path in get_jurisdiction_paths():
         }
     }
     set_metadata_json(new_metadata)
+
+if missing_jurisdictions:
+    taf_logger.error(f"Could not get template config for the following jurisdictions: {missing_jurisdictions}")
+    sys.exit(1)
