@@ -15,14 +15,12 @@ from taf.log import taf_logger
 H_OFFSET = 2
 URL_PREFIX = '/nill/triballaw'
 LIB_ROOT_PATH = Path(__file__).parent.parent.parent.parent.parent.parent.parent.expanduser()
-# LIB_ROOT_PATH = Path("/home/dnikolic/narf")
+
 if not LIB_ROOT_PATH.exists():
-    raise(Exception(f'archive at {LIB_ROOT_PATH} does not exist.'))
+    raise(Exception(f'Archive at {LIB_ROOT_PATH} does not exist.'))
 
 BASE_DIR = Path(__file__).parent.parent.parent.parent.parent.parent.absolute()
-# BASE_DIR = Path("/home/dnikolic/narf/narf-nill")
 NILL_LAW_DIR = Path(BASE_DIR / 'law')
-# BASE_DIR = Path("/home/dnikolic/narf/openlawlibrary/nill")
 DST_ROOT_PATH = Path(BASE_DIR / 'law-html' / 'triballaw')
 
 TEMPLATE_BASE_DIR = DST_ROOT_PATH / 'templates'
@@ -73,7 +71,6 @@ def get_document_meta(src):
         return [document_meta[0]]
     else:
         return []
-
 
 def get_breadcrumbs(src):
     src_bc_els = src.xpath('//nav[@aria-label="Breadcrumb navigation"]/ul/li/*')
@@ -228,12 +225,6 @@ def get_rel_dst_path(rel_src_path, namespace=None):
 
 def get_template():
     template_path = TEMPLATE_BASE_DIR / 'template.html'
-    # resp = requests.get(template_url)
-    # requests for some reason thinks the document is encoded ISO-8859-1 (win default)
-    # but it is utf-8, so must use content (bytes), not text (str)
-    # template_text = resp.content
-    # template_text = template_text.replace(b'="../../../../../../', b'="/nill/')
-    # template_text = template_text.replace(b'="../../../../../', b'="/nill/triballaw/')
     template_text = template_path.read_text()
     template = html.fromstring(template_text)
     return template
@@ -310,7 +301,6 @@ def process_stdin():
    return sys.stdin.read()
 
 def send_state(state):
-    # printed data will be sent from the script back to the updater
     print(json.dumps(state))
 
 def set_metadata_json(new_metadata):
@@ -321,12 +311,6 @@ def set_metadata_json(new_metadata):
         metadata = json.loads(metadata_path.read_text())
     metadata.update(new_metadata)
     metadata_path.write_text(json.dumps(metadata, indent=2))
-# data = process_stdin()
-# data = json.loads(data)
-# with open("/home/dnikolic/.RESULT/TEMPLATE.txt", "w+") as f:
-#     f.write(f"DATA {data}\n")
-# state = data["state"]
-# config = data["config"]
 
 jurisdiction_map = get_jurisdiction_map()
 
@@ -365,5 +349,3 @@ for jurisdiction_path in get_jurisdiction_paths():
         }
     }
     set_metadata_json(new_metadata)
-
-# send_state(state)

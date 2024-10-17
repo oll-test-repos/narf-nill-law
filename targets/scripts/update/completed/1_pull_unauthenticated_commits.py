@@ -6,7 +6,6 @@ from taf.git import GitRepository
 from taf.log import taf_logger
 
 LIB_ROOT_PATH = Path(__file__).parent.parent.parent.parent.parent.parent.parent.expanduser()
-# LIB_ROOT_PATH = Path("/home/dnikolic/narf")
 
 target_repos_with_unauthenticated_commits = ("narf-nill/law-html",)
 

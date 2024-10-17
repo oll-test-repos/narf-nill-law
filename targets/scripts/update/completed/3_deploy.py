@@ -9,7 +9,6 @@ from taf.exceptions import NothingToCommitError
 from taf.log import taf_logger
 
 LIB_ROOT_PATH = Path(__file__).parent.parent.parent.parent.parent.parent.parent.expanduser()
-# LIB_ROOT_PATH = Path("/home/dnikolic/narf")
 
 MESSAGE_TEMPLATE = f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}]: Updates to Tribal Law"
 
