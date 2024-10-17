@@ -19,7 +19,7 @@ data = process_stdin()
 data = json.loads(data)
 
 for repo in target_repos_with_unauthenticated_commits:
-    html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name=repo, urls=["git@github.com:narf-nill/law-html.git"])
+    html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name=repo, urls=["git@github.com:oll-test-repos/narf-nill-law-html.git"])
     error = None
     try:
         html_repo.clone()
