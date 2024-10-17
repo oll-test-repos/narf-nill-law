@@ -2,7 +2,7 @@
  "signatures": [
   {
    "keyid": "ba65808977548012b65ab8229f7b939e2339703cec3686ef816f2480274e7f9b",
-   "sig": "00b09f3c277fc9d2f8728bcc0fa2710712b2644fbc249998cf5eb5c171151c156b84fc63abf81930f2d261e4694fa9f2862cf5c771e1001e6dca3d70b0ec46f4d0855b7a43f1efb3efc017080ba99df96ae33aaa8e4e2bbfd5b0b50dd6d28a1d53a032719e934d5c87f39f60bc1206c5372915e3da48c680f94ca43b46985f8b35ce61c3a78ddaab1bcd1bc610b8546f9d9079e046ffa823c3bf69249d86678f49dd4dc34b06f1d500e4728a45a407587814dee7a303a866d2015b257471b2a562e163aa77ede396631aa60664021cbef26dc560813f7118c080119bfe02c69ea8aec47ac7b3b3fd24561619b0fe0f9a053a96d0ab2e82008d9eca9191dceca3"
+   "sig": "0912c40cd22e66fb96b16fa8e0fdfdbd6eb59ba548e6ddd1f9f8461c6ce4f9f43c008674822c73924eb1a3bcd16f09efc6a0dfd7d6090abffc9901289eab0c5d0a61a7ec6748c1166c868f99764216de8ec9a55bba8050c9202c4b0892e0394fe29aeb924b570fd01a8ceed2f6421f9e269e0e6309e0153a57b522d2ead96c9ad5a7eba012a8fe63b6ea3372b048baf5b44859366c4fdd50b8870de2ca224791f661ef19e69cb752ddbe8274a1ef792663bf0666dcad98fb5c5fc159c386ff42a1daa94073fd0123062c8b4e0533ba01af569ccd8cc6e915852b453c2ab1ddf2e6ea819241f44fef98d9557ddcab50483f7309b1b079649987ae221a179e6d49"
   }
  ],
  "signed": {
@@ -11,9 +11,51 @@
    "keys": {},
    "roles": []
   },
-  "expires": "2024-12-17T21:24:18Z",
+  "expires": "2025-01-15T21:36:26Z",
   "spec_version": "1.0.0",
   "targets": {
+   "dependencies.json": {
+    "hashes": {
+     "sha256": "061abaff7b9d3396d48b0180130bb2c8e9a4cd07bc1db0c8f976e0e2eac94a15",
+     "sha512": "cf770a5f9c834adf39860299df9454088d41d04aad15aa385c61b47e531c508d24dbbba17a5cb22de1224d1284e50ceb061bf01312e0bdf6b6f9c881029a8463"
+    },
+    "length": 342
+   },
+   "mirrors.json": {
+    "hashes": {
+     "sha256": "473935916c6dc1f30c65d4ba76f40a4ee207074358b639dce253d3a9b7395efd",
+     "sha512": "fddb84d7a85034d4c7ede7f700a610fa6ace2afc516d407c7b83fc46041538ca892ad239d5beb7ca5797ee106e3a35ff3a9ebee985c464d21faa9ece1d7e995d"
+    },
+    "length": 161
+   },
+   "protected/info.json": {
+    "hashes": {
+     "sha256": "62821ddd6c41f4221ae03d80edb27aad0cdf10514c2a695cc1def372000c4ede",
+     "sha512": "25ec7ddfb1d40559843351e939f063468400827f2820402c1edf909b5d1baddc90fe9d0c8d44d87b8f5e1e1dd9ea745bffeb33b5f005efeac2039f9061359101"
+    },
+    "length": 52
+   },
+   "scripts/update/completed/1_clone_private_html_repo.py": {
+    "hashes": {
+     "sha256": "081f9d15c4dd392768b4768ca1d39f11152b3c54d14f6a7c72ec4e3c9589471f",
+     "sha512": "9229d971c78ff86b9cae7c372963dd253b266d029face6e7250e4ac4df9671b2f4ecb4dc9d3988e1f2174c2cef4ef45aedb77e78fc15fdf3b22eb791b8f7d54a"
+    },
+    "length": 816
+   },
+   "scripts/update/completed/2_template.py": {
+    "hashes": {
+     "sha256": "9263177c7c5e7afd4624e10a5067ffb8fb5021dc0e99ca3615051daf78b525d5",
+     "sha512": "685921145bbb2e053504e1465a8a8cb28e1c900a6545c3b408b146f81dda4d0d5b83d1c9bd45c68ab46ee04741040f0a929d2ad0c0cf750503b0d52afb94150c"
+    },
+    "length": 13164
+   },
+   "scripts/update/completed/3_deploy.py": {
+    "hashes": {
+     "sha256": "7a49bf3325679aeea88eaf41c457412ee35eb8601e5a46351ed8e30f8b42b764",
+     "sha512": "5d08f8b1f2cb862eb13d0c7f0aba25d0cd4d1514b43ee2d7b2522a4df07e2ff966d1764cda32740f0afce33bc3f8cf2b69ff04d5e2b24089dfbc8c6967918390"
+    },
+    "length": 1142
+   },
    "test-auth-repo": {
     "hashes": {
      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -22,6 +64,6 @@
     "length": 0
    }
   },
-  "version": 1
+  "version": 2
  }
 }

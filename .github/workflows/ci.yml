@@ -1,0 +1,44 @@
+name: Update triballaw templates every 24 hrs
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  run-templates:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.NILL_SSH_KEY_HTML }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Set up SSH config and git credentials
+        run: |
+          git config --global user.name "oll-bot"
+          git config --global user.email "developers@openlawlib.org"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          architecture: x64
+
+      - name: Install taf and lxml
+        run: |
+          python -m pip install --upgrade taf lxml==5.3.*
+          python -m pip list
+
+      - name: Set up archive directory
+        run: |
+          mkdir -p archive
+
+      - name: Clone all tribes and update templates
+        run: taf repo clone https://github.com/${{ github.repository }}.git
+        working-directory: ./archive
