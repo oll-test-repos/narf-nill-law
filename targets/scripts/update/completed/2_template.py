@@ -319,7 +319,7 @@ def set_metadata_json(new_metadata):
 
 jurisdiction_map = get_jurisdiction_map()
 
-missing_jurisdictions = []
+missing_jurisdictions = ["test/test"]
 
 if jurisdiction_map is None:
     raise Exception("Could not get jurisdiction map")
@@ -361,5 +361,6 @@ for jurisdiction_path in get_jurisdiction_paths():
     set_metadata_json(new_metadata)
 
 if missing_jurisdictions:
-    taf_logger.error(f"Could not get template config for the following jurisdictions: {missing_jurisdictions}")
-    sys.exit(1)
+    e = f"Could not get template config for the following jurisdictions: {missing_jurisdictions}"
+    taf_logger.error(e)
+    send_state({"error": str(e), "exit-code": 1})
