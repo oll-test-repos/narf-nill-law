@@ -36,12 +36,13 @@ except Exception as e:
     error = e.message or str(e)
     exit_code = 1
 
-try:
-    html_repo.push()
-except Exception as e:
-    error = e.message or str(e)
-    html_repo.reset_num_of_commits(1)
-    exit_code = 1
+if error is None:
+    try:
+        html_repo.push()
+    except Exception as e:
+        error = e.message or str(e)
+        html_repo.reset_num_of_commits(1)
+        exit_code = 1
 
 transient_exit_code = state.get("transient", {}).get("exit-code", 0)
 state["transient"] = {"error": f"{state.get('transient', {}).get('error', '')}\n{error}".strip()}
