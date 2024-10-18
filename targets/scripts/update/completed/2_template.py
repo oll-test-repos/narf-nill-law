@@ -317,6 +317,9 @@ def set_metadata_json(new_metadata):
     metadata.update(new_metadata)
     metadata_path.write_text(json.dumps(metadata, indent=2))
 
+data = process_stdin()
+data = json.loads(data)
+
 jurisdiction_map = get_jurisdiction_map()
 
 missing_jurisdictions = ["test/test"]
@@ -360,7 +363,10 @@ for jurisdiction_path in get_jurisdiction_paths():
     }
     set_metadata_json(new_metadata)
 
+state = data["state"]
+
 if missing_jurisdictions:
     e = f"Could not get template config for the following jurisdictions: {missing_jurisdictions}"
     taf_logger.error(e)
-    send_state(json.dumps({"error": str(e), "exit-code": 1}))
+    state["transient"] = {"error": str(e), "exit-code": 1}
+    send_state(state)

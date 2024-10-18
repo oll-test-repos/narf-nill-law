@@ -24,4 +24,4 @@ except Exception as e:
     taf_logger.error(f"Clone failed for {html_repo.name}: {e}")
     sys.exit(1)
 
-send_state(data)
+send_state(data["state"])

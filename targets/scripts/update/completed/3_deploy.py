@@ -24,10 +24,6 @@ data = json.loads(data)
 html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name="narf-nill/law-html")
 error = None
 
-send_state(data)
-print(data)
-sys.exit(1)
-
 try:
     html_repo.commit(MESSAGE_TEMPLATE)
 except NothingToCommitError as e:
@@ -49,6 +45,8 @@ except Exception as e:
     html_repo.reset_num_of_commits(1)
     sys.exit(1)
 
-exit_code = data.get('exit-code', 0)
+state = data["state"]
+
+exit_code = state.get("transient", {}).get("exit_code", 0)
 if exit_code:
     sys.exit(exit_code)
