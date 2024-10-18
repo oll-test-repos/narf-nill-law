@@ -319,6 +319,7 @@ def set_metadata_json(new_metadata):
 
 data = process_stdin()
 data = json.loads(data)
+state = data["state"]
 
 jurisdiction_map = get_jurisdiction_map()
 
@@ -362,8 +363,6 @@ for jurisdiction_path in get_jurisdiction_paths():
         }
     }
     set_metadata_json(new_metadata)
-
-state = data["state"]
 
 if missing_jurisdictions:
     e = f"Could not get template config for the following jurisdictions: {missing_jurisdictions}"

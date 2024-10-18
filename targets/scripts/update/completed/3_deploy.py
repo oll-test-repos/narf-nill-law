@@ -20,33 +20,32 @@ def send_state(state):
 
 data = process_stdin()
 data = json.loads(data)
+state = data["state"]
 
 html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name="narf-nill/law-html")
 error = None
+exit_code = 0
 
 try:
     html_repo.commit(MESSAGE_TEMPLATE)
 except NothingToCommitError as e:
     error = str(e)
     taf_logger.info(f"Nothing to commit: {error}")
-    sys.exit(0)
 except Exception as e:
     # commit failed, clean and reset to head
     error = e.message or str(e)
-    html_repo.clean_and_reset()
     send_state({"error": error})
-    sys.exit(1)
+    exit_code = 1
 
-try:
-    html_repo.push()
-except Exception as e:
-    error = e.message or str(e)
-    send_state({"error": str(error)})
-    html_repo.reset_num_of_commits(1)
-    sys.exit(1)
+if error is not None:
+    try:
+        html_repo.push()
+    except Exception as e:
+        error = e.message or str(e)
+        html_repo.reset_num_of_commits(1)
+        exit_code = 1
 
-state = data["state"]
-
-exit_code = state.get("transient", {}).get("exit_code", 0)
-if exit_code:
-    sys.exit(exit_code)
+transient_exit_code = state.get("transient", {}).get("exit-code", 0)
+state["transient"] = {"error": str(e)}
+send_state(state)
+sys.exit(transient_exit_code if transient_exit_code else exit_code)
