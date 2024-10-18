@@ -16,7 +16,7 @@ def send_state(state):
 data = process_stdin()
 data = json.loads(data)
 
-html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name="narf-nill/law-html", urls=["git@github.com:narf-nill/law-html.git"])
+html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name="narf-nill/law-html", urls=["git@github.com:oll-test-repos/narf-nill-law-html.git"])
 try:
     html_repo.clone()
 except Exception as e:
