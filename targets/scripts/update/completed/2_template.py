@@ -196,23 +196,26 @@ def is_jurisdiction_already_templated(jurisdiction):
     """
     Read .metadata.json file and check if the last validated commit is the same as the current commit in the authentication repository.
     """
-    try:
-        current_commit = get_current_targets_commit(jurisdiction, targets_type="law-html")
-    except (TypeError, KeyError):
-        # no target file for this jurisdiction
-        # no need to template anything, since jursdiction has no html.
-        return True
-    except Exception as e:
-        taf_logger.error(f"Could not get current commit for {jurisdiction}: {e}")
-        raise e
-    metadata_path = BASE_DIR / "law-html" / ".metadata.json"
-    if not metadata_path.exists():
-        return False
-    metadata = json.loads(metadata_path.read_text())
-    last_validated_commit = metadata.get(f"{jurisdiction}/law-html", {}).get("last_validated_commit")
-    if last_validated_commit is None:
-        return False
-    return last_validated_commit == current_commit
+    for target_type in ("law-html", "law-static-assets", "law-docs"):
+        try:
+            current_commit = get_current_targets_commit(jurisdiction, targets_type=target_type)
+        except (TypeError, KeyError):
+            # no target file for this jurisdiction
+            # no need to template anything, since jursdiction has no html.
+            continue
+        except Exception as e:
+            taf_logger.error(f"Could not get current commit for {jurisdiction}: {e}")
+            raise e
+        metadata_path = BASE_DIR / "law-html" / ".metadata.json"
+        if not metadata_path.exists():
+            return False
+        metadata = json.loads(metadata_path.read_text())
+        last_validated_commit = metadata.get(jurisdiction, {}).get(target_type, {}).get("last_validated_commit")
+        if last_validated_commit is None:
+            return False
+        if last_validated_commit != current_commit:
+            return False
+    return True
 
 def get_rel_dst_path(rel_src_path, namespace=None):
     if str(rel_src_path.parent) == '.' and namespace:
@@ -243,13 +246,15 @@ def get_domain(jurisdiction):
     except (TypeError, KeyError, AttributeError):
         return None
 
-def get_current_targets_commit(jurisdiction, targets_type="law-html"):
+def get_current_targets_commit(jurisdiction, targets_type):
     """
-    Get the current signed commit for the law-html repository.
+    Get the current signed commit for the targets repository.
     """
     law_repo_path = (BASE_DIR / ".." / jurisdiction / "law").resolve()
     law_repo = AuthenticationRepository(path=law_repo_path)
     targets = law_repo.get_target(f"{jurisdiction}/{targets_type}")
+    if targets is None:
+        return None
     return targets["commit"]
 
 def get_jurisdiction_map():
@@ -341,7 +346,7 @@ for jurisdiction_path in get_jurisdiction_paths():
         continue
     namespace = jurisdiction_map.get(jurisdiction)
     _template = get_template()
-    domain = get_domain(jurisdiction)
+    domain = get_domain(jurisdiction).strip('/')
     template_tribe_config = get_template_config(domain)
     if template_tribe_config is None:
         taf_logger.error(f"Could not get template config for {domain}. Skipping jurisdiction {jurisdiction}.")
@@ -357,12 +362,16 @@ for jurisdiction_path in get_jurisdiction_paths():
             content = src_path.read_bytes()
         dst_path.parent.mkdir(parents=True, exist_ok=True)
         dst_path.write_bytes(content)
-    new_metadata = {
-        f"{jurisdiction}/law-html": {
-            "last_validated_commit": get_current_targets_commit(jurisdiction, targets_type="law-html")
+
+    for target_type in ("law-html", "law-docs", "law-static-assets"):
+        new_metadata = {
+            jurisdiction: {
+                target_type: {
+                    "last_validated_commit": get_current_targets_commit(jurisdiction, targets_type=target_type)
+                }
+            }
         }
-    }
-    set_metadata_json(new_metadata)
+        set_metadata_json(new_metadata)
 
 if missing_jurisdictions:
     e = f"Could not get template config for the following jurisdictions: {missing_jurisdictions}"
