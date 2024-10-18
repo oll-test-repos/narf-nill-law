@@ -34,7 +34,6 @@ except NothingToCommitError as e:
 except Exception as e:
     # commit failed, clean and reset to head
     error = e.message or str(e)
-    send_state({"error": error})
     exit_code = 1
 
 if error is not None:
@@ -46,6 +45,6 @@ if error is not None:
         exit_code = 1
 
 transient_exit_code = state.get("transient", {}).get("exit-code", 0)
-state["transient"] = {"error": str(e)}
+state["transient"] = {"error": error}
 send_state(state)
 sys.exit(transient_exit_code if transient_exit_code else exit_code)
