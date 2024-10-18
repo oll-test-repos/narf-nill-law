@@ -363,4 +363,4 @@ for jurisdiction_path in get_jurisdiction_paths():
 if missing_jurisdictions:
     e = f"Could not get template config for the following jurisdictions: {missing_jurisdictions}"
     taf_logger.error(e)
-    send_state({"error": str(e), "exit-code": 1})
+    send_state(json.dumps({"error": str(e), "exit-code": 1}))
