@@ -323,7 +323,7 @@ state = data["state"]
 
 jurisdiction_map = get_jurisdiction_map()
 
-missing_jurisdictions = ["test/test"]
+missing_jurisdictions = []
 
 if jurisdiction_map is None:
     raise Exception("Could not get jurisdiction map")

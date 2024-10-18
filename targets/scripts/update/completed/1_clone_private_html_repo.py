@@ -15,13 +15,16 @@ def send_state(state):
 
 data = process_stdin()
 data = json.loads(data)
+state = data["state"]
 
 html_repo = GitRepository(library_dir=LIB_ROOT_PATH, name="narf-nill/law-html", urls=["git@github.com:oll-test-repos/narf-nill-law-html.git"])
 try:
     html_repo.clone()
 except Exception as e:
-    send_state({"error": str(e)})
-    taf_logger.error(f"Clone failed for {html_repo.name}: {e}")
+    error = e.message or str(e)
+    state["transient"] = {"error": f"Clone failed for {html_repo.name}: {error}"}
+    send_state(state)
+    taf_logger.error(error)
     sys.exit(1)
 
 send_state(data["state"])
