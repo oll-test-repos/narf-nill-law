@@ -319,7 +319,8 @@ def set_metadata_json(new_metadata):
         metadata = {}
     else:
         metadata = json.loads(metadata_path.read_text())
-    metadata.update(new_metadata)
+    for jurisdiction, targets in new_metadata.items():
+        metadata.setdefault(jurisdiction, {}).update(targets)
     metadata_path.write_text(json.dumps(metadata, indent=2))
 
 data = process_stdin()
