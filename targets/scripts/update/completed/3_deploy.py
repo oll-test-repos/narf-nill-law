@@ -44,7 +44,7 @@ if error is not None:
         html_repo.reset_num_of_commits(1)
         exit_code = 1
 
-state["transient"] = {"error": f"{state.get("transient", {}).get("error", "")}\n{error}".strip()}
-send_state(state)
 transient_exit_code = state.get("transient", {}).get("exit-code", 0)
+state["transient"] = {"error": f"{state.get('transient', {}).get('error', '')}\n{error}".strip()}
+send_state(state)
 sys.exit(transient_exit_code if transient_exit_code else exit_code)
