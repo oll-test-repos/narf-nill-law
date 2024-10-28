@@ -344,7 +344,6 @@ def get_templatedir_hash():
 def update_metadata_hash_json():
     hash = get_templatedir_hash()
     metadata = get_metadata_json()
-    metadata.setdefault("templates_dir_dash", {})
     metadata["templates_dir_hash"] = hash
     save_metadata_json(metadata)
 
